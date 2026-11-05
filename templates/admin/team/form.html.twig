@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% form_theme form '_partials/form_theme.html.twig' %}
+{% block title %}{{ isNew ? 'Team anlegen' : team.name }}{% endblock %}
+{% block body %}
+<a href="{{ path('app_admin_team_index') }}" class="text-sm text-blue-700 hover:underline">← Teams</a>
+<h1 class="mt-2 text-2xl font-semibold text-slate-900">{{ isNew ? 'Team anlegen' : team.name ~ ' bearbeiten' }}</h1>
+<section class="mt-6 max-w-2xl rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    {{ form_start(form, {attr: {class: 'space-y-5', novalidate: 'novalidate'}}) }}
+        {{ form_widget(form) }}
+        <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Speichern</button>
+    {{ form_end(form) }}
+</section>
+{% if not isNew %}
+    <form method="post" action="{{ path('app_admin_team_delete', {id: team.id}) }}" class="mt-4" onsubmit="return confirm('Team löschen? Mitglieder bleiben erhalten.')">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete-team' ~ team.id) }}">
+        <button class="rounded-lg border border-red-300 px-4 py-2 text-sm text-red-700 hover:bg-red-50">Team löschen</button>
+    </form>
+{% endif %}
+{% endblock %}
