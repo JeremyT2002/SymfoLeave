@@ -1,0 +1,13 @@
+<section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 class="text-sm font-semibold text-slate-900">Urlaubskonto {{ account.year }}</h2>
+    <dl class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div><dt class="text-xs text-slate-500">Anspruch</dt><dd class="text-2xl font-semibold">{{ account.entitlement|days }}</dd></div>
+        <div><dt class="text-xs text-slate-500">Genommen</dt><dd class="text-2xl font-semibold">{{ account.taken|days }}</dd></div>
+        <div><dt class="text-xs text-slate-500">Geplant</dt><dd class="text-2xl font-semibold">{{ account.planned|days }}</dd></div>
+        <div><dt class="text-xs text-slate-500">Verbleibend</dt><dd class="text-2xl font-semibold {{ account.negative ? 'text-red-700' : 'text-blue-700' }}">{{ account.remaining|days }}</dd></div>
+    </dl>
+    <div class="mt-4 h-2 rounded-full bg-slate-100" role="progressbar" aria-valuenow="{{ account.usedPercent }}" aria-valuemin="0" aria-valuemax="100" aria-label="Verplanter Urlaub">
+        <div class="h-2 rounded-full {{ account.negative ? 'bg-red-600' : 'bg-blue-600' }}" style="width: {{ account.usedPercent }}%"></div>
+    </div>
+    <p class="mt-2 text-xs text-slate-500">Geplant = genehmigte zukünftige Tage + offene Anträge. Gezählt werden Arbeitstage (Mo–Fr ohne Feiertage).</p>
+</section>

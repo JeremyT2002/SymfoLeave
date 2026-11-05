@@ -1,0 +1,2 @@
+{{ absence.startDate|date('d.m.Y') }}{% if absence.startHalfDay %} <span class="text-slate-500">(ab Mittag)</span>{% endif %}
+{% if absence.endDate != absence.startDate %} – {{ absence.endDate|date('d.m.Y') }}{% endif %}{% if absence.endHalfDay %} <span class="text-slate-500">(bis Mittag)</span>{% endif %}

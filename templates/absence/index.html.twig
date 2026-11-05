@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+{% block title %}Meine Abwesenheiten{% endblock %}
+{% block body %}
+<div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-2xl font-semibold text-slate-900">Meine Abwesenheiten</h1>
+    <a href="{{ path('app_absence_new') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">+ Abwesenheit beantragen</a>
+</div>
+
+<div class="mt-6">{{ include('_partials/account.html.twig') }}</div>
+
+<section class="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    {% if absences is empty %}
+        <p class="px-5 py-6 text-sm text-slate-500">Noch keine Abwesenheiten eingetragen.</p>
+    {% else %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
+                    <tr>
+                        <th class="px-4 py-3">Art</th>
+                        <th class="px-4 py-3">Zeitraum</th>
+                        <th class="px-4 py-3 text-right">Arbeitstage</th>
+                        <th class="px-4 py-3">Status</th>
+                        <th class="px-4 py-3">Entscheidung</th>
+                        <th class="px-4 py-3"><span class="sr-only">Aktionen</span></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for absence in absences %}
+                        <tr>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <span class="inline-block h-2.5 w-2.5 rounded-sm align-middle" style="background: {{ absence.type.color }}"></span>
+                                {{ absence.type.name }}
+                                {% if absence.comment %}<span class="block text-xs text-slate-500">{{ absence.comment }}</span>{% endif %}
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">{{ include('_partials/period.html.twig') }}</td>
+                            <td class="px-4 py-3 text-right tabular-nums">{{ absence.workingDays|days }}</td>
+                            <td class="px-4 py-3">{{ include('_partials/status_badge.html.twig') }}</td>
+                            <td class="px-4 py-3 text-xs text-slate-600">
+                                {% if absence.decidedAt %}
+                                    {{ absence.decidedBy ? absence.decidedBy.name : 'System' }}, {{ absence.decidedAt|date('d.m.Y') }}
+                                    {% if absence.decisionComment %}<span class="block italic">„{{ absence.decisionComment }}“</span>{% endif %}
+                                {% else %}–{% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                {% if is_granted('ABSENCE_CANCEL', absence) %}
+                                    <form method="post" action="{{ path('app_absence_cancel', {id: absence.id}) }}" onsubmit="return confirm('Diese Abwesenheit wirklich stornieren?')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ absence.id) }}">
+                                        <button class="rounded-md border border-slate-300 px-2.5 py-1 text-xs text-slate-700 hover:bg-slate-50">Stornieren</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

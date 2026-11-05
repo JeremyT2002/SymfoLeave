@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+{% form_theme form '_partials/form_theme.html.twig' %}
+{% block title %}Abwesenheit beantragen{% endblock %}
+{% block body %}
+<h1 class="text-2xl font-semibold text-slate-900">Abwesenheit beantragen</h1>
+
+<div class="mt-6 grid gap-6 lg:grid-cols-3">
+    <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2"
+             {{ stimulus_controller('working-days', {url: path('app_absence_working_days')}) }}>
+        {{ form_start(form, {attr: {novalidate: 'novalidate', class: 'space-y-5'}}) }}
+            {{ form_errors(form) }}
+            {{ form_row(form.type) }}
+            <div class="grid gap-5 sm:grid-cols-2">
+                <div class="space-y-3">{{ form_row(form.startDate) }}{{ form_row(form.startHalfDay) }}</div>
+                <div class="space-y-3">{{ form_row(form.endDate) }}{{ form_row(form.endHalfDay) }}</div>
+            </div>
+            <div class="rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-900" aria-live="polite">
+                Benötigte Arbeitstage: <strong data-working-days-target="output">–</strong>
+                <span class="block text-xs text-blue-800" data-working-days-target="detail"></span>
+            </div>
+            {{ form_row(form.comment) }}
+            <div class="flex gap-3">
+                <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Beantragen</button>
+                <a href="{{ path('app_absence_index') }}" class="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Abbrechen</a>
+            </div>
+        {{ form_end(form) }}
+    </section>
+    <div>{{ include('_partials/account.html.twig') }}
+        <p class="mt-4 text-xs text-slate-500">Krankheit ist ohne Genehmigung sofort eingetragen und für Kolleg:innen nur als „abwesend“ sichtbar.</p>
+    </div>
+</div>
+{% endblock %}
