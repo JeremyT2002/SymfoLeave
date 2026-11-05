@@ -26,3 +26,7 @@
 - **Rechte über Gruppe `www-data`** – Projekt `root:www-data` lesbar, `var/` `2770` für den Web-User statt 777.
 - **Demo-Reset per Crontab von `www-data`** täglich 3:30 Uhr.
 - **Demo-Logins per curl geprüft** – Session-Cookie ist in `prod` `secure`, daher bis SSL im Browser erst über HTTPS nutzbar.
+- **Live MySQL statt SQLite** – wie SymfoShop auf demselben Server; lokal und in den Tests bleibt SQLite, die Migration hat dafür einen MySQL- und einen SQLite-Zweig.
+- **Fremdschlüssel-PRAGMA nur bei SQLite** – eigene Middleware statt der DBAL-Middleware, die das PRAGMA auch an MySQL schicken würde.
+- **Datenbank anlegen per `deploy/switch-to-mysql.sh`** – braucht das MySQL-Root-Passwort, das nur Jeremy hat; das Zufallspasswort des App-Benutzers landet nur in `.env.local`.
+- **SSL per certbot** für `symfoleave.jeremythelen.de`, nachdem der DNS-Eintrag angelegt war; HTTP leitet auf HTTPS um.

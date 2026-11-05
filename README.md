@@ -19,7 +19,7 @@ Schlanke Abwesenheitsverwaltung mit Symfony: Mitarbeitende tragen Urlaub, Krankh
 
 ## Tech-Stack
 
-PHP 8.2+ · Symfony 7.4 LTS · Doctrine ORM + Migrations · SQLite · Twig · AssetMapper · Tailwind CSS (symfonycasts/tailwind-bundle, ohne Node) · Stimulus · Symfony Security (Voter), Forms, Validator, Workflow · azuyalabs/yasumi · PHPUnit
+PHP 8.2+ · Symfony 7.4 LTS · Doctrine ORM + Migrations · MySQL (live) / SQLite (lokal, Tests) · Twig · AssetMapper · Tailwind CSS (symfonycasts/tailwind-bundle, ohne Node) · Stimulus · Symfony Security (Voter), Forms, Validator, Workflow · azuyalabs/yasumi · PHPUnit
 
 ## Lokales Setup
 
@@ -46,7 +46,9 @@ Unit-Tests für Arbeitstage (Wochenende, Feiertage, halbe Tage, Jahreswechsel) u
 
 ## Deployment
 
-Ziel: VPS mit nginx oder Apache, PHP-FPM ≥ 8.2 und SQLite – ohne Docker.
+Ziel: VPS mit nginx oder Apache, PHP ≥ 8.2 und MySQL – ohne Docker. Lokal und in den Tests reicht SQLite, die Migration unterstützt beides.
+
+Umstellung einer bestehenden SQLite-Installation auf MySQL: `bash deploy/switch-to-mysql.sh` (legt Datenbank und Benutzer an, fragt einmal nach dem MySQL-Root-Passwort).
 
 Einmalige Einrichtung (als normaler Benutzer mit sudo-Rechten):
 
@@ -56,7 +58,7 @@ curl -fsSL https://raw.githubusercontent.com/JeremyT2002/SymfoLeave/main/deploy/
 
 Das Skript ist idempotent und erkennt Webserver, PHP-FPM-Version und Web-User selbst. Es ergänzt fehlende PHP-Erweiterungen (ohne Upgrades), klont das Repo nach `/var/www/symfoleave.jeremythelen.de`, erzeugt `.env.local` mit zufälligem `APP_SECRET`, baut Assets, migriert, lädt die Demo-Daten, legt einen **eigenen** vHost an (Backup → Config-Test → Reload, sonst Rollback), nutzt ein vorhandenes Wildcard-Zertifikat oder certbot und richtet den nächtlichen Demo-Reset per Cron ein. Vorher und nachher werden die Statuscodes aller anderen Subdomains verglichen.
 
-Updates: `cd /var/www/symfoleave.jeremythelen.de && bash deploy/deploy.sh` (sichert vorher die SQLite-Datei).
+Updates: `cd /var/www/symfoleave.jeremythelen.de && bash deploy/deploy.sh` (sichert bei SQLite vorher die Datenbankdatei; die Demo-Daten werden ohnehin nächtlich neu geladen).
 
 vHost-Vorlagen: [`deploy/nginx.conf`](deploy/nginx.conf), [`deploy/apache.conf`](deploy/apache.conf).
 

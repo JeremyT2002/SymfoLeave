@@ -13,6 +13,6 @@ services:
     App\:
         resource: '../src/'
 
-    # SQLite: enforce foreign keys (ON DELETE CASCADE / SET NULL)
-    Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\EnableForeignKeys:
+    # SQLite: Fremdschlüssel erzwingen (ON DELETE CASCADE / SET NULL) – bei MySQL wirkungslos
+    App\Doctrine\SqliteForeignKeysMiddleware:
         tags: ['doctrine.middleware']
