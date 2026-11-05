@@ -15,8 +15,14 @@ cd "$APP_DIR"
 DB_PASS="$(openssl rand -hex 24)"
 SERVER_VERSION="$(mysqld --version | grep -oP '\d+\.\d+\.\d+' | head -1)"
 
-echo "Lege Datenbank '$DB_NAME' und Benutzer '$DB_USER' an – bitte das MySQL-Root-Passwort eingeben:"
-mysql -u root -p <<SQL
+# Root-Passwort aus MYSQL_ROOT_PASSWORD (nicht interaktiv) oder per Abfrage
+if [[ -n "${MYSQL_ROOT_PASSWORD:-}" ]]; then
+    root_mysql() { MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -u root; }
+else
+    echo "Lege Datenbank '$DB_NAME' und Benutzer '$DB_USER' an – bitte das MySQL-Root-Passwort eingeben:"
+    root_mysql() { mysql -u root -p; }
+fi
+root_mysql <<SQL
 CREATE DATABASE IF NOT EXISTS \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';
 CREATE USER IF NOT EXISTS '$DB_USER'@'127.0.0.1' IDENTIFIED BY '$DB_PASS';
