@@ -6,7 +6,7 @@ import { Controller } from '@hotwired/stimulus';
  */
 export default class extends Controller {
     static targets = ['start', 'end', 'startHalf', 'endHalf', 'output', 'detail'];
-    static values = { url: String };
+    static values = { url: String, endBeforeStart: String };
 
     connect() {
         this.update();
@@ -20,7 +20,7 @@ export default class extends Controller {
             return;
         }
         if (end < start) {
-            this.render('–', 'Das Ende liegt vor dem Start.');
+            this.render('–', this.endBeforeStartValue);
             return;
         }
 
@@ -49,7 +49,7 @@ export default class extends Controller {
     }
 
     format(days) {
-        return days.toLocaleString('de-DE', { maximumFractionDigits: 1 });
+        return days.toLocaleString(document.documentElement.lang || 'de', { maximumFractionDigits: 1 });
     }
 
     render(text, detail) {

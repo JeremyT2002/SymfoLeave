@@ -7,18 +7,20 @@ namespace App\Calendar;
 use App\Entity\Absence;
 use App\Security\Voter\AbsenceVoter;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Privacy rule: colleagues only see "abwesend" for types that are not visible to them
- * (e.g. sickness) – no type, no comment.
+ * Privacy rule: colleagues only see "absent" for types that are not visible to them
+ * (e.g. sickness) – no type, no comment. Labels are translated into the current language.
  */
 class AbsenceVisibility
 {
-    public const HIDDEN_LABEL = 'abwesend';
     public const HIDDEN_COLOR = '#64748b';
 
-    public function __construct(private readonly Security $security)
-    {
+    public function __construct(
+        private readonly Security $security,
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     public function canSeeDetails(Absence $absence): bool
@@ -33,7 +35,9 @@ class AbsenceVisibility
 
     public function label(Absence $absence): string
     {
-        return $this->canSeeType($absence) ? (string) $absence->getType()?->getName() : self::HIDDEN_LABEL;
+        return $this->canSeeType($absence)
+            ? $this->translator->trans((string) $absence->getType()?->getName(), domain: 'absence_types')
+            : $this->translator->trans('calendar.absent');
     }
 
     public function color(Absence $absence): string

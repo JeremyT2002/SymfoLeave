@@ -1,54 +1,75 @@
 {% extends 'base.html.twig' %}
-{% block title %}Meine Abwesenheiten{% endblock %}
+{% import '_partials/icons.html.twig' as icons %}
+{% block title %}{{ 'absence.index_title'|trans }}{% endblock %}
+{% macro cancel_form(absence) %}
+    {% if is_granted('ABSENCE_CANCEL', absence) %}
+        <form method="post" action="{{ path('app_absence_cancel', {id: absence.id}) }}" onsubmit="return confirm({{ 'absence.cancel_confirm'|trans|json_encode }})">
+            <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ absence.id) }}">
+            <button class="btn-secondary btn-sm">{{ 'absence.cancel'|trans }}</button>
+        </form>
+    {% endif %}
+{% endmacro %}
+
+{% macro decision(absence) %}
+    {% if absence.decidedAt %}
+        {{ absence.decidedBy ? absence.decidedBy.name : 'absence.system'|trans }}, {{ absence.decidedAt|ldate }}
+        {% if absence.decisionComment %}<span class="block italic">„{{ absence.decisionComment }}“</span>{% endif %}
+    {% else %}–{% endif %}
+{% endmacro %}
 {% block body %}
-<div class="flex flex-wrap items-center justify-between gap-3">
-    <h1 class="text-2xl font-semibold text-slate-900">Meine Abwesenheiten</h1>
-    <a href="{{ path('app_absence_new') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">+ Abwesenheit beantragen</a>
+<div class="flex flex-wrap items-end justify-between gap-4">
+    <h1 class="text-2xl font-semibold tracking-tight text-fg sm:text-3xl">{{ 'absence.index_title'|trans }}</h1>
+    <a href="{{ path('app_absence_new') }}" class="btn-primary hidden sm:inline-flex">{{ icons.icon('plus', 'h-4 w-4') }}{{ 'nav.new_absence'|trans }}</a>
 </div>
 
 <div class="mt-6">{{ include('_partials/account.html.twig') }}</div>
 
-<section class="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+
+<section class="card mt-6 overflow-hidden">
     {% if absences is empty %}
-        <p class="px-5 py-6 text-sm text-slate-500">Noch keine Abwesenheiten eingetragen.</p>
+        <p class="px-5 py-8 text-center text-sm text-muted">{{ 'absence.empty'|trans }}</p>
     {% else %}
-        <div class="overflow-x-auto">
+        {# Handy: Karten #}
+        <ul class="divide-y divide-line md:hidden">
+            {% for absence in absences %}
+                <li class="space-y-2 px-4 py-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <span class="flex items-center gap-2 font-medium text-fg"><span class="swatch" style="background: {{ absence.type.color }}"></span>{{ absence.type|type_name }}</span>
+                        {{ include('_partials/status_badge.html.twig') }}
+                    </div>
+                    <p class="text-sm text-muted">{{ include('_partials/period.html.twig') }} · <span class="text-fg">{{ (absence.workingDays == 1 ? 'absence.working_day_one'|trans : 'absence.working_days'|trans({'%days%': absence.workingDays|days})) }}</span></p>
+                    {% if absence.comment %}<p class="text-sm text-muted">{{ absence.comment }}</p>{% endif %}
+                    {% if absence.decidedAt %}<p class="text-xs text-muted">{{ _self.decision(absence) }}</p>{% endif %}
+                    {{ _self.cancel_form(absence) }}
+                </li>
+            {% endfor %}
+        </ul>
+
+        {# Desktop: Tabelle #}
+        <div class="hidden overflow-x-auto md:block">
             <table class="min-w-full text-sm">
-                <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
+                <thead class="bg-surface-2 text-left text-xs font-semibold uppercase tracking-wide text-muted">
                     <tr>
-                        <th class="px-4 py-3">Art</th>
-                        <th class="px-4 py-3">Zeitraum</th>
-                        <th class="px-4 py-3 text-right">Arbeitstage</th>
-                        <th class="px-4 py-3">Status</th>
-                        <th class="px-4 py-3">Entscheidung</th>
-                        <th class="px-4 py-3"><span class="sr-only">Aktionen</span></th>
+                        <th class="px-5 py-3">{{ 'absence.type'|trans }}</th>
+                        <th class="px-5 py-3">{{ 'absence.period'|trans }}</th>
+                        <th class="px-5 py-3 text-right">{{ 'absence.days'|trans }}</th>
+                        <th class="px-5 py-3">{{ 'absence.status'|trans }}</th>
+                        <th class="px-5 py-3">{{ 'absence.decision'|trans }}</th>
+                        <th class="px-5 py-3"><span class="sr-only">{{ 'absence.actions'|trans }}</span></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-line">
                     {% for absence in absences %}
-                        <tr>
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                <span class="inline-block h-2.5 w-2.5 rounded-sm align-middle" style="background: {{ absence.type.color }}"></span>
-                                {{ absence.type.name }}
-                                {% if absence.comment %}<span class="block text-xs text-slate-500">{{ absence.comment }}</span>{% endif %}
+                        <tr class="hover:bg-surface-2/50">
+                            <td class="px-5 py-3.5">
+                                <span class="flex items-center gap-2 font-medium text-fg"><span class="swatch" style="background: {{ absence.type.color }}"></span>{{ absence.type|type_name }}</span>
+                                {% if absence.comment %}<span class="mt-0.5 block max-w-xs truncate text-xs text-muted">{{ absence.comment }}</span>{% endif %}
                             </td>
-                            <td class="px-4 py-3 whitespace-nowrap">{{ include('_partials/period.html.twig') }}</td>
-                            <td class="px-4 py-3 text-right tabular-nums">{{ absence.workingDays|days }}</td>
-                            <td class="px-4 py-3">{{ include('_partials/status_badge.html.twig') }}</td>
-                            <td class="px-4 py-3 text-xs text-slate-600">
-                                {% if absence.decidedAt %}
-                                    {{ absence.decidedBy ? absence.decidedBy.name : 'System' }}, {{ absence.decidedAt|date('d.m.Y') }}
-                                    {% if absence.decisionComment %}<span class="block italic">„{{ absence.decisionComment }}“</span>{% endif %}
-                                {% else %}–{% endif %}
-                            </td>
-                            <td class="px-4 py-3 text-right">
-                                {% if is_granted('ABSENCE_CANCEL', absence) %}
-                                    <form method="post" action="{{ path('app_absence_cancel', {id: absence.id}) }}" onsubmit="return confirm('Diese Abwesenheit wirklich stornieren?')">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ absence.id) }}">
-                                        <button class="rounded-md border border-slate-300 px-2.5 py-1 text-xs text-slate-700 hover:bg-slate-50">Stornieren</button>
-                                    </form>
-                                {% endif %}
-                            </td>
+                            <td class="whitespace-nowrap px-5 py-3.5 text-fg">{{ include('_partials/period.html.twig') }}</td>
+                            <td class="px-5 py-3.5 text-right tabular-nums text-fg">{{ absence.workingDays|days }}</td>
+                            <td class="px-5 py-3.5">{{ include('_partials/status_badge.html.twig') }}</td>
+                            <td class="px-5 py-3.5 text-xs text-muted">{{ _self.decision(absence) }}</td>
+                            <td class="px-5 py-3.5 text-right">{{ _self.cancel_form(absence) }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

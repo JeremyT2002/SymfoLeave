@@ -18,15 +18,15 @@ final class TeamFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, ['label' => 'Name'])
+            ->add('name', TextType::class, ['label' => 'form.name'])
             ->add('lead', EntityType::class, [
-                'label' => 'Teamleitung',
+                'label' => 'form.lead',
                 'class' => User::class,
                 'choice_label' => 'name',
                 'required' => false,
-                'placeholder' => '– keine –',
+                'placeholder' => 'form.no_lead',
                 'query_builder' => static fn (EntityRepository $r) => $r->createQueryBuilder('u')->orderBy('u.name'),
-                'help' => 'Die Person benötigt zusätzlich die Rolle „Teamleitung“.',
+                'help' => 'form.lead_help',
             ]);
     }
 

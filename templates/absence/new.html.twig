@@ -1,32 +1,38 @@
 {% extends 'base.html.twig' %}
+{% import '_partials/icons.html.twig' as icons %}
 {% form_theme form '_partials/form_theme.html.twig' %}
-{% block title %}Abwesenheit beantragen{% endblock %}
+{% block title %}{{ 'absence.new_title'|trans }}{% endblock %}
 {% block body %}
-<h1 class="text-2xl font-semibold text-slate-900">Abwesenheit beantragen</h1>
+<h1 class="text-2xl font-semibold tracking-tight text-fg sm:text-3xl">{{ 'absence.new_title'|trans }}</h1>
 
 <div class="mt-6 grid gap-6 lg:grid-cols-3">
-    <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2"
-             {{ stimulus_controller('working-days', {url: path('app_absence_working_days')}) }}>
-        {{ form_start(form, {attr: {novalidate: 'novalidate', class: 'space-y-5'}}) }}
+    <section class="card p-5 sm:p-6 lg:col-span-2"
+             {{ stimulus_controller('working-days', {url: path('app_absence_working_days'), endBeforeStart: 'absence.end_before_start'|trans}) }}>
+        {{ form_start(form, {attr: {novalidate: 'novalidate', class: 'space-y-6'}}) }}
             {{ form_errors(form) }}
             {{ form_row(form.type) }}
             <div class="grid gap-5 sm:grid-cols-2">
                 <div class="space-y-3">{{ form_row(form.startDate) }}{{ form_row(form.startHalfDay) }}</div>
                 <div class="space-y-3">{{ form_row(form.endDate) }}{{ form_row(form.endHalfDay) }}</div>
             </div>
-            <div class="rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-900" aria-live="polite">
-                Benötigte Arbeitstage: <strong data-working-days-target="output">–</strong>
-                <span class="block text-xs text-blue-800" data-working-days-target="detail"></span>
+            <div class="flex items-center gap-4 rounded-xl bg-accent-soft px-4 py-3.5" aria-live="polite">
+                <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-surface text-accent">{{ icons.icon('calendar') }}</span>
+                <span>
+                    <span class="block text-xs font-medium text-accent">{{ 'absence.working_days_label'|trans }}</span>
+                    <strong class="block text-2xl font-semibold tabular-nums text-fg" data-working-days-target="output">–</strong>
+                    <span class="block text-xs text-muted" data-working-days-target="detail"></span>
+                </span>
             </div>
             {{ form_row(form.comment) }}
-            <div class="flex gap-3">
-                <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Beantragen</button>
-                <a href="{{ path('app_absence_index') }}" class="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Abbrechen</a>
+            <div class="flex flex-col-reverse gap-3 sm:flex-row">
+                <a href="{{ path('app_absence_index') }}" class="btn-secondary">{{ 'absence.abort'|trans }}</a>
+                <button type="submit" class="btn-primary sm:min-w-40">{{ 'absence.submit'|trans }}</button>
             </div>
         {{ form_end(form) }}
     </section>
-    <div>{{ include('_partials/account.html.twig') }}
-        <p class="mt-4 text-xs text-slate-500">Krankheit ist ohne Genehmigung sofort eingetragen und für Kolleg:innen nur als „abwesend“ sichtbar.</p>
+    <div class="space-y-4">
+        {{ include('_partials/account.html.twig') }}
+        <p class="flex items-start gap-2.5 rounded-xl border border-line bg-surface px-4 py-3 text-xs leading-relaxed text-muted">{{ icons.icon('shield', 'h-4 w-4 shrink-0 text-accent') }}{{ 'absence.sick_hint'|trans }}</p>
     </div>
 </div>
 {% endblock %}

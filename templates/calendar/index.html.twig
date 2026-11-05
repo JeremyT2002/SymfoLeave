@@ -1,77 +1,80 @@
 {% extends 'base.html.twig' %}
-{% block title %}Team-Kalender{% endblock %}
+{% import '_partials/icons.html.twig' as icons %}
+{% block title %}{{ 'calendar.title'|trans }}{% endblock %}
 {% block body %}
 {% set teamParam = team ? team.id : 'all' %}
-<div class="flex flex-wrap items-center justify-between gap-3">
-    <h1 class="text-2xl font-semibold text-slate-900">Team-Kalender</h1>
-    <form method="get" class="flex items-center gap-2 text-sm">
+<div class="flex flex-wrap items-end justify-between gap-4">
+    <h1 class="text-2xl font-semibold tracking-tight text-fg sm:text-3xl">{{ 'calendar.title'|trans }}</h1>
+    <form method="get" class="flex w-full items-center gap-2 text-sm sm:w-auto">
         <input type="hidden" name="month" value="{{ calendar.month|date('Y-m') }}">
-        <label for="team" class="text-slate-600">Team</label>
-        <select id="team" name="team" onchange="this.form.submit()" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5">
+        <label for="team" class="label mb-0 shrink-0">{{ 'calendar.team'|trans }}</label>
+        <select id="team" name="team" onchange="this.form.submit()" class="input py-2 sm:w-56">
             {% for t in teams %}<option value="{{ t.id }}" {{ team and team.id == t.id ? 'selected' }}>{{ t.name }}</option>{% endfor %}
-            <option value="all" {{ team is null ? 'selected' }}>Alle Teams</option>
+            <option value="all" {{ team is null ? 'selected' }}>{{ 'calendar.all_teams'|trans }}</option>
         </select>
-        <noscript><button class="rounded-lg border px-2 py-1">Anzeigen</button></noscript>
+        <noscript><button class="btn-secondary btn-sm">{{ 'calendar.show'|trans }}</button></noscript>
     </form>
 </div>
 
-<div class="mt-4 flex items-center justify-between gap-2">
-    <a class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50" href="{{ path('app_calendar', {month: calendar.previous|date('Y-m'), team: teamParam}) }}" aria-label="Vorheriger Monat">← <span class="hidden sm:inline">{{ calendar.previous|format_date(pattern: 'MMMM', locale: 'de') }}</span></a>
-    <div class="text-center">
-        <h2 class="text-lg font-semibold">{{ calendar.month|format_date(pattern: 'MMMM yyyy', locale: 'de') }}</h2>
-        <a class="text-xs text-blue-700 underline" href="{{ path('app_calendar', {team: teamParam}) }}">Heute</a>
+<div class="card mt-6 overflow-hidden">
+    <div class="flex items-center justify-between gap-2 border-b border-line px-3 py-3 sm:px-5">
+        <a class="icon-btn" href="{{ path('app_calendar', {month: calendar.previous|date('Y-m'), team: teamParam}) }}" aria-label="{{ 'calendar.previous'|trans }}" title="{{ calendar.previous|ldate('format.month') }}">{{ icons.icon('left', 'h-5 w-5') }}</a>
+        <div class="flex flex-col items-center sm:flex-row sm:gap-3">
+            <h2 class="text-lg font-semibold capitalize text-fg">{{ calendar.month|ldate('format.month_year') }}</h2>
+            <a class="badge-neutral hover:text-accent" href="{{ path('app_calendar', {team: teamParam}) }}">{{ 'calendar.today'|trans }}</a>
+        </div>
+        <a class="icon-btn" href="{{ path('app_calendar', {month: calendar.next|date('Y-m'), team: teamParam}) }}" aria-label="{{ 'calendar.next'|trans }}" title="{{ calendar.next|ldate('format.month') }}">{{ icons.icon('right', 'h-5 w-5') }}</a>
     </div>
-    <a class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50" href="{{ path('app_calendar', {month: calendar.next|date('Y-m'), team: teamParam}) }}" aria-label="Nächster Monat"><span class="hidden sm:inline">{{ calendar.next|format_date(pattern: 'MMMM', locale: 'de') }}</span> →</a>
-</div>
 
-<div class="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-    <table class="calendar min-w-full border-collapse text-xs">
-        <thead>
-            <tr>
-                <th scope="col" class="sticky left-0 z-10 bg-white px-3 py-2 text-left font-semibold text-slate-700 min-w-40">Person</th>
-                {% for day in calendar.days %}
-                    <th scope="col" title="{{ day.holiday ?? '' }}" class="w-8 min-w-8 px-0.5 py-2 text-center font-medium {{ day.today ? 'bg-blue-600 text-white' : (day.holiday ? 'bg-rose-50 text-rose-800' : (day.weekend ? 'bg-slate-100 text-slate-500' : 'text-slate-700')) }}">
-                        <span class="block">{{ day.date|format_date(pattern: 'EEEEEE', locale: 'de') }}</span>
-                        <span class="block text-sm">{{ day.date|date('j') }}</span>
-                    </th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in calendar.rows %}
-                <tr class="border-t border-slate-100">
-                    <th scope="row" class="sticky left-0 z-10 bg-white px-3 py-1.5 text-left font-medium text-slate-800 whitespace-nowrap">
-                        {{ row.user.name }}{% if row.user.leadOf(row.user.team) %} <span class="text-slate-500 font-normal">(TL)</span>{% endif %}
-                    </th>
+    <div class="overflow-x-auto overscroll-x-contain">
+        <table class="calendar min-w-full border-collapse text-xs">
+            <thead>
+                <tr>
+                    <th scope="col" class="sticky left-0 z-10 min-w-32 border-r border-line bg-surface px-3 py-2 text-left font-semibold text-muted sm:min-w-44">{{ 'calendar.person'|trans }}</th>
                     {% for day in calendar.days %}
-                        {% set key = day.date|date('Y-m-d') %}
-                        {% set cell = row.cells[key] ?? null %}
-                        <td class="h-8 p-0.5 text-center {{ day.holiday ? 'bg-rose-50' : (day.weekend ? 'bg-slate-100' : '') }}">
-                            {% if cell and not day.weekend and not day.holiday %}
-                                <span class="block h-6 rounded {{ cell.pending ? 'opacity-60 ring-1 ring-inset ring-slate-900/30' : '' }}"
-                                      style="background: {% if cell.half %}linear-gradient(135deg, {{ cell.color }} 50%, transparent 50%){% else %}{{ cell.color }}{% endif %}"
-                                      title="{{ row.user.name }}: {{ cell.label }}{{ cell.half ? ' (halber Tag)' }}{{ cell.pending ? ' – beantragt' }}{{ cell.comment ? ' – ' ~ cell.comment }}">
-                                    <span class="sr-only">{{ cell.label }}{{ cell.pending ? ' (beantragt)' }}</span>
-                                </span>
-                            {% endif %}
-                        </td>
+                        <th scope="col" title="{{ day.holiday ?? '' }}" class="w-8 min-w-8 px-0.5 py-2 text-center font-medium {{ day.holiday ? 'cal-holiday text-rose-700 dark:text-rose-300' : (day.weekend ? 'cal-weekend text-muted' : 'text-fg') }}">
+                            <span class="block text-[10px] uppercase opacity-70">{{ day.date|ldate('format.weekday') }}</span>
+                            <span class="mx-auto mt-0.5 flex h-6 w-6 items-center justify-center rounded-full text-sm {{ day.today ? 'bg-accent font-semibold text-white dark:text-canvas' : '' }}">{{ day.date|date('j') }}</span>
+                        </th>
                     {% endfor %}
                 </tr>
-            {% else %}
-                <tr><td colspan="{{ calendar.days|length + 1 }}" class="px-3 py-6 text-center text-slate-500">Keine Personen in diesem Team.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for row in calendar.rows %}
+                    <tr class="border-t border-line">
+                        <th scope="row" class="sticky left-0 z-10 max-w-44 truncate whitespace-nowrap border-r border-line bg-surface px-3 py-1.5 text-left font-medium text-fg">
+                            {{ row.user.name }}{% if row.user.leadOf(row.user.team) %} <span class="font-normal text-muted">({{ 'calendar.team_lead_short'|trans }})</span>{% endif %}
+                        </th>
+                        {% for day in calendar.days %}
+                            {% set cell = row.cells[day.date|date('Y-m-d')] ?? null %}
+                            <td class="h-9 p-0.5 text-center {{ day.holiday ? 'cal-holiday' : (day.weekend ? 'cal-weekend' : '') }}">
+                                {% if cell and not day.weekend and not day.holiday %}
+                                    <span class="block h-7 rounded-md {{ cell.pending ? 'opacity-55 ring-1 ring-inset ring-fg/40' : '' }}"
+                                          style="background: {% if cell.half %}linear-gradient(135deg, {{ cell.color }} 50%, transparent 50%){% else %}{{ cell.color }}{% endif %}"
+                                          title="{{ row.user.name }}: {{ cell.label }}{{ cell.half ? ' (' ~ 'calendar.half_day'|trans ~ ')' }}{{ cell.pending ? ' – ' ~ 'calendar.requested'|trans }}{{ cell.comment ? ' – ' ~ cell.comment }}">
+                                        <span class="sr-only">{{ cell.label }}{{ cell.pending ? ' (' ~ 'calendar.requested'|trans ~ ')' }}</span>
+                                    </span>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% else %}
+                    <tr><td colspan="{{ calendar.days|length + 1 }}" class="px-3 py-8 text-center text-sm text-muted">{{ 'calendar.empty'|trans }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="border-t border-line px-4 py-2 text-center text-xs text-muted sm:hidden">{{ 'calendar.scroll_hint'|trans }}</p>
 </div>
 
-<div class="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-600">
+<div class="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted">
     {% for t in legend %}
-        <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded-sm" style="background: {{ t.color }}"></span>{{ t.name }}</span>
+        <span class="inline-flex items-center gap-1.5"><span class="swatch" style="background: {{ t.color }}"></span>{{ t|type_name }}</span>
     {% endfor %}
-    <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded-sm" style="background: #64748b"></span>abwesend (Details privat)</span>
-    <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded-sm bg-blue-600 opacity-60 ring-1 ring-inset ring-slate-900/30"></span>beantragt</span>
-    <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded-sm" style="background: linear-gradient(135deg, #2563eb 50%, transparent 50%)"></span>halber Tag</span>
-    <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded-sm bg-rose-100 border border-rose-200"></span>Feiertag</span>
-    <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded-sm bg-slate-100 border border-slate-200"></span>Wochenende</span>
+    <span class="inline-flex items-center gap-1.5"><span class="swatch" style="background: #64748b"></span>{{ 'calendar.legend_absent'|trans }}</span>
+    <span class="inline-flex items-center gap-1.5"><span class="swatch bg-accent opacity-55 ring-1 ring-inset ring-fg/40"></span>{{ 'calendar.requested'|trans }}</span>
+    <span class="inline-flex items-center gap-1.5"><span class="swatch" style="background: linear-gradient(135deg, var(--sl-accent) 50%, transparent 50%)"></span>{{ 'calendar.half_day'|trans }}</span>
+    <span class="inline-flex items-center gap-1.5"><span class="swatch cal-holiday border border-line"></span>{{ 'calendar.legend_holiday'|trans }}</span>
+    <span class="inline-flex items-center gap-1.5"><span class="swatch cal-weekend border border-line"></span>{{ 'calendar.legend_weekend'|trans }}</span>
 </div>
 {% endblock %}

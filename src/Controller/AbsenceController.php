@@ -19,13 +19,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[IsGranted('ROLE_EMPLOYEE')]
 #[Route('/absences')]
 final class AbsenceController extends AbstractController
 {
-    public function __construct(private readonly AbsenceManager $manager)
-    {
+    public function __construct(
+        private readonly AbsenceManager $manager,
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     #[Route('', name: 'app_absence_index', methods: ['GET'])]
@@ -47,20 +50,17 @@ final class AbsenceController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->manager->submit($absence);
 
-            $this->addFlash('success', $absence->getType()?->requiresApproval()
-                ? 'Antrag gestellt. Die Teamleitung wurde informiert.'
-                : 'Abwesenheit eingetragen.');
+            $this->addFlash('success', $this->translator->trans($absence->getType()?->requiresApproval() ? 'flash.requested' : 'flash.recorded'));
 
             if ($absence->getType()?->countsAgainstVacation()) {
                 $year = (int) $absence->getStartDate()?->format('Y');
                 foreach (array_unique([$year, (int) $absence->getEndDate()?->format('Y')]) as $y) {
                     $account = $accounts->forUser($user, $y);
                     if ($account->isNegative()) {
-                        $this->addFlash('warning', sprintf(
-                            'Achtung: Dein Urlaubskonto %d ist mit diesem Antrag negativ (%s Tage).',
-                            $y,
-                            number_format($account->remaining(), 1, ',', '.'),
-                        ));
+                        $this->addFlash('warning', $this->translator->trans('flash.negative_account', [
+                            '%year%' => $y,
+                            '%days%' => number_format($account->remaining(), 1, 'en' === $request->getLocale() ? '.' : ',', ''),
+                        ]));
                     }
                 }
             }
@@ -102,7 +102,7 @@ final class AbsenceController extends AbstractController
             throw $this->createAccessDeniedException('Ungültiges CSRF-Token.');
         }
         $this->manager->apply($absence, AbsenceManager::TRANSITION_CANCEL, $user);
-        $this->addFlash('success', 'Abwesenheit storniert.');
+        $this->addFlash('success', $this->translator->trans('flash.cancelled'));
 
         return $this->redirect($request->headers->get('referer') ?: $this->generateUrl('app_absence_index'));
     }
@@ -122,10 +122,9 @@ final class AbsenceController extends AbstractController
         $comment = mb_substr(trim((string) $request->request->get('comment')), 0, 1000);
         $this->manager->apply($absence, $transition, $user, $comment);
 
-        $this->addFlash('success', sprintf(
-            'Antrag von %s wurde %s.',
-            $absence->getUser()->getName(),
-            $transition === AbsenceManager::TRANSITION_APPROVE ? 'genehmigt' : 'abgelehnt',
+        $this->addFlash('success', $this->translator->trans(
+            $transition === AbsenceManager::TRANSITION_APPROVE ? 'flash.approved' : 'flash.rejected',
+            ['%name%' => $absence->getUser()->getName()],
         ));
 
         return $this->redirect($request->headers->get('referer') ?: $this->generateUrl('app_dashboard'));

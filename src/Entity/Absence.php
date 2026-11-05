@@ -28,16 +28,16 @@ class Absence
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(message: 'Bitte eine Art auswählen.')]
+    #[Assert\NotNull(message: 'absence.type_required')]
     private ?AbsenceType $type = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    #[Assert\NotNull(message: 'Bitte ein Startdatum angeben.')]
+    #[Assert\NotNull(message: 'absence.start_required')]
     private ?\DateTimeImmutable $startDate = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    #[Assert\NotNull(message: 'Bitte ein Enddatum angeben.')]
-    #[Assert\GreaterThanOrEqual(propertyPath: 'startDate', message: 'Das Ende darf nicht vor dem Start liegen.')]
+    #[Assert\NotNull(message: 'absence.end_required')]
+    #[Assert\GreaterThanOrEqual(propertyPath: 'startDate', message: 'absence.end_before_start')]
     private ?\DateTimeImmutable $endDate = null;
 
     /** First day starts at noon (only the afternoon is taken). */
@@ -93,7 +93,7 @@ class Absence
     {
         if ($this->startDate && $this->endDate && $this->startDate == $this->endDate
             && $this->startHalfDay && $this->endHalfDay) {
-            $context->buildViolation('Bei einem einzelnen Tag bitte nur eine Tageshälfte wählen.')
+            $context->buildViolation('absence.single_day_half')
                 ->atPath('endHalfDay')->addViolation();
         }
     }

@@ -1,19 +1,20 @@
 {% extends 'base.html.twig' %}
+{% import '_partials/icons.html.twig' as icons %}
 {% form_theme form '_partials/form_theme.html.twig' %}
-{% block title %}{{ isNew ? 'Team anlegen' : team.name }}{% endblock %}
+{% block title %}{{ isNew ? 'admin.new_team'|trans : team.name }}{% endblock %}
 {% block body %}
-<a href="{{ path('app_admin_team_index') }}" class="text-sm text-blue-700 hover:underline">← Teams</a>
-<h1 class="mt-2 text-2xl font-semibold text-slate-900">{{ isNew ? 'Team anlegen' : team.name ~ ' bearbeiten' }}</h1>
-<section class="mt-6 max-w-2xl rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+<a href="{{ path('app_admin_team_index') }}" class="inline-flex items-center gap-1 text-sm text-accent hover:underline">{{ icons.icon('left', 'h-4 w-4') }}{{ 'admin.teams_title'|trans }}</a>
+<h1 class="mt-2 text-2xl font-semibold tracking-tight text-fg sm:text-3xl">{{ isNew ? 'admin.new_team'|trans : 'admin.edit_title'|trans({'%name%': team.name}) }}</h1>
+<section class="card mt-6 max-w-2xl p-5 sm:p-6">
     {{ form_start(form, {attr: {class: 'space-y-5', novalidate: 'novalidate'}}) }}
         {{ form_widget(form) }}
-        <button class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Speichern</button>
+        <button class="btn-primary w-full sm:w-auto">{{ 'admin.save'|trans }}</button>
     {{ form_end(form) }}
 </section>
 {% if not isNew %}
-    <form method="post" action="{{ path('app_admin_team_delete', {id: team.id}) }}" class="mt-4" onsubmit="return confirm('Team löschen? Mitglieder bleiben erhalten.')">
+    <form method="post" action="{{ path('app_admin_team_delete', {id: team.id}) }}" class="mt-4" onsubmit="return confirm({{ 'admin.delete_team_confirm'|trans|json_encode }})">
         <input type="hidden" name="_token" value="{{ csrf_token('delete-team' ~ team.id) }}">
-        <button class="rounded-lg border border-red-300 px-4 py-2 text-sm text-red-700 hover:bg-red-50">Team löschen</button>
+        <button class="btn-danger">{{ 'admin.delete_team'|trans }}</button>
     </form>
 {% endif %}
 {% endblock %}

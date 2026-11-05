@@ -22,30 +22,30 @@ final class UserFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, ['label' => 'Name'])
-            ->add('email', EmailType::class, ['label' => 'E-Mail'])
+            ->add('name', TextType::class, ['label' => 'form.name'])
+            ->add('email', EmailType::class, ['label' => 'form.email'])
             ->add('team', EntityType::class, [
-                'label' => 'Team',
+                'label' => 'form.team',
                 'class' => Team::class,
                 'choice_label' => 'name',
                 'required' => false,
-                'placeholder' => '– kein Team –',
+                'placeholder' => 'form.no_team',
             ])
             ->add('storedRoles', ChoiceType::class, [
-                'label' => 'Zusätzliche Rollen',
+                'label' => 'form.roles',
                 'property_path' => 'roles',
-                'choices' => ['Teamleitung' => User::ROLE_TEAM_LEAD, 'Admin' => User::ROLE_ADMIN],
+                'choices' => ['role.team_lead' => User::ROLE_TEAM_LEAD, 'role.admin' => User::ROLE_ADMIN],
                 'multiple' => true,
                 'expanded' => true,
                 'required' => false,
                 'getter' => static fn (User $u): array => $u->getStoredRoles(),
             ])
             ->add('annualVacationDays', IntegerType::class, [
-                'label' => 'Urlaubsanspruch pro Jahr (Tage)',
+                'label' => 'form.vacation_days',
                 'attr' => ['min' => 0, 'max' => 60],
             ])
             ->add('plainPassword', PasswordType::class, [
-                'label' => $options['require_password'] ? 'Passwort' : 'Neues Passwort (leer lassen = unverändert)',
+                'label' => $options['require_password'] ? 'form.password' : 'form.new_password',
                 'mapped' => false,
                 'required' => $options['require_password'],
                 'constraints' => [new Length(min: 6, max: 4096)],

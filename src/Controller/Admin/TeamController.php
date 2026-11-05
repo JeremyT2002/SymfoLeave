@@ -13,13 +13,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[IsGranted('ROLE_ADMIN')]
 #[Route('/admin/teams')]
 final class TeamController extends AbstractController
 {
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly TranslatorInterface $translator,
+    ) {
     }
 
     #[Route('', name: 'app_admin_team_index', methods: ['GET'])]
@@ -48,7 +51,7 @@ final class TeamController extends AbstractController
         }
         $this->em->remove($team);
         $this->em->flush();
-        $this->addFlash('success', 'Team gelöscht. Mitglieder sind jetzt keinem Team zugeordnet.');
+        $this->addFlash('success', $this->translator->trans('flash.team_deleted'));
 
         return $this->redirectToRoute('app_admin_team_index');
     }
@@ -61,7 +64,7 @@ final class TeamController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->em->persist($team);
             $this->em->flush();
-            $this->addFlash('success', $isNew ? 'Team angelegt.' : 'Änderungen gespeichert.');
+            $this->addFlash('success', $this->translator->trans($isNew ? 'flash.team_created' : 'flash.saved'));
 
             return $this->redirectToRoute('app_admin_team_index');
         }

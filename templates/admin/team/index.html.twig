@@ -1,27 +1,26 @@
 {% extends 'base.html.twig' %}
-{% block title %}Teams{% endblock %}
+{% import '_partials/icons.html.twig' as icons %}
+{% block title %}{{ 'admin.teams_title'|trans }}{% endblock %}
 {% block body %}
-<div class="flex flex-wrap items-center justify-between gap-3">
-    <h1 class="text-2xl font-semibold text-slate-900">Teams</h1>
-    <a href="{{ path('app_admin_team_new') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">+ Team anlegen</a>
+<div class="flex flex-wrap items-end justify-between gap-4">
+    <h1 class="text-2xl font-semibold tracking-tight text-fg sm:text-3xl">{{ 'admin.teams_title'|trans }}</h1>
+    <a href="{{ path('app_admin_team_new') }}" class="btn-primary">{{ icons.icon('plus', 'h-4 w-4') }}{{ 'admin.new_team'|trans }}</a>
 </div>
-<div class="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-    <table class="min-w-full text-sm">
-        <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
-            <tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Teamleitung</th><th class="px-4 py-3 text-right">Mitglieder</th><th class="px-4 py-3"><span class="sr-only">Aktionen</span></th></tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100">
-            {% for team in teams %}
-                <tr>
-                    <td class="px-4 py-3 font-medium">{{ team.name }}</td>
-                    <td class="px-4 py-3">{{ team.lead ?? '–' }}</td>
-                    <td class="px-4 py-3 text-right tabular-nums">{{ team.members|length }}</td>
-                    <td class="px-4 py-3 text-right"><a href="{{ path('app_admin_team_edit', {id: team.id}) }}" class="text-blue-700 hover:underline">Bearbeiten</a></td>
-                </tr>
-            {% else %}
-                <tr><td colspan="4" class="px-4 py-6 text-center text-slate-500">Noch keine Teams.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+{% if teams is empty %}
+    <p class="card mt-6 px-5 py-8 text-center text-sm text-muted">{{ 'admin.teams_empty'|trans }}</p>
+{% else %}
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {% for team in teams %}
+            <a href="{{ path('app_admin_team_edit', {id: team.id}) }}" class="card group block p-5 transition hover:border-accent/50">
+                <span class="flex items-start justify-between gap-3">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent">{{ icons.icon('team', 'h-5 w-5') }}</span>
+                    <span class="text-muted transition group-hover:text-accent">{{ icons.icon('pencil', 'h-4 w-4') }}<span class="sr-only">{{ 'admin.edit'|trans }}</span></span>
+                </span>
+                <span class="mt-4 block text-lg font-semibold text-fg">{{ team.name }}</span>
+                <span class="mt-1 block text-sm text-muted">{{ 'admin.lead'|trans }}: <span class="text-fg">{{ team.lead ?? '–' }}</span></span>
+                <span class="mt-0.5 block text-sm text-muted">{{ 'admin.members'|trans }}: <span class="tabular-nums text-fg">{{ team.members|length }}</span></span>
+            </a>
+        {% endfor %}
+    </div>
+{% endif %}
 {% endblock %}

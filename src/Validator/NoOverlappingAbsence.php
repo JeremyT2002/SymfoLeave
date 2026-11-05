@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraint;
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class NoOverlappingAbsence extends Constraint
 {
-    public string $message = 'Im gewählten Zeitraum besteht bereits eine aktive Abwesenheit.';
+    public string $message = 'absence.overlap';
 
     public function getTargets(): string
     {

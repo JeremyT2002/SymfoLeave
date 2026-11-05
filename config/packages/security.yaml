@@ -32,7 +32,7 @@ security:
                 lifetime: 604800
 
     access_control:
-        - { path: ^/(login|demo-login), roles: PUBLIC_ACCESS }
+        - { path: ^/(login|demo-login|locale/), roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/, roles: ROLE_EMPLOYEE }
 

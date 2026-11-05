@@ -22,36 +22,37 @@ final class AbsenceRequestFormType extends AbstractType
         $live = ['data-action' => 'change->working-days#update'];
         $builder
             ->add('type', EntityType::class, [
-                'label' => 'Art',
+                'label' => 'form.type',
                 'class' => AbsenceType::class,
                 'choice_label' => 'name',
-                'placeholder' => 'Bitte wählen …',
+                'choice_translation_domain' => 'absence_types',
+                'placeholder' => 'form.choose',
                 'query_builder' => static fn (EntityRepository $r) => $r->createQueryBuilder('t')->orderBy('t.id'),
             ])
             ->add('startDate', DateType::class, [
-                'label' => 'Von',
+                'label' => 'form.start',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
                 'attr' => $live + ['data-working-days-target' => 'start'],
             ])
             ->add('startHalfDay', CheckboxType::class, [
-                'label' => 'Erster Tag erst ab Mittag (halber Tag)',
+                'label' => 'form.start_half',
                 'required' => false,
                 'attr' => $live + ['data-working-days-target' => 'startHalf'],
             ])
             ->add('endDate', DateType::class, [
-                'label' => 'Bis',
+                'label' => 'form.end',
                 'widget' => 'single_text',
                 'input' => 'datetime_immutable',
                 'attr' => $live + ['data-working-days-target' => 'end'],
             ])
             ->add('endHalfDay', CheckboxType::class, [
-                'label' => 'Letzter Tag nur bis Mittag (halber Tag)',
+                'label' => 'form.end_half',
                 'required' => false,
                 'attr' => $live + ['data-working-days-target' => 'endHalf'],
             ])
             ->add('comment', TextareaType::class, [
-                'label' => 'Kommentar (optional)',
+                'label' => 'form.comment',
                 'required' => false,
                 'attr' => ['rows' => 3],
             ]);

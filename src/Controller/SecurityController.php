@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class SecurityController extends AbstractController
 {
@@ -25,6 +26,7 @@ final class SecurityController extends AbstractController
     public function __construct(
         #[Autowire('%app.demo%')]
         private readonly bool $demo,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -48,13 +50,13 @@ final class SecurityController extends AbstractController
             throw $this->createNotFoundException();
         }
         if (!$this->isCsrfTokenValid('demo-login', (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Ungültiges Formular-Token. Bitte erneut versuchen.');
+            $this->addFlash('error', $this->translator->trans('flash.invalid_token'));
 
             return $this->redirectToRoute('app_login');
         }
         $user = $users->findOneBy(['email' => self::DEMO_ACCOUNTS[$role]]);
         if ($user === null) {
-            $this->addFlash('error', 'Demo-Daten fehlen. Bitte „php bin/console app:demo:reset“ ausführen.');
+            $this->addFlash('error', $this->translator->trans('flash.demo_missing'));
 
             return $this->redirectToRoute('app_login');
         }

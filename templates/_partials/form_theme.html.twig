@@ -1,7 +1,7 @@
 {% use 'form_div_layout.html.twig' %}
 
 {% block form_row %}
-    <div class="{{ block_prefixes[1] == 'checkbox' ? 'flex items-center gap-2' : 'space-y-1' }}">
+    <div class="{{ block_prefixes[1] == 'checkbox' ? 'flex items-center gap-2.5' : 'space-y-1.5' }}">
         {% if block_prefixes[1] == 'checkbox' %}
             {{ form_widget(form) }}{{ form_label(form) }}
         {% else %}
@@ -13,46 +13,46 @@
 {% endblock %}
 
 {% block form_label %}
-    {% set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' block text-sm font-medium text-slate-700')|trim}) %}
+    {% set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ (block_prefixes[1] == 'checkbox' ? ' text-sm text-fg' : ' label'))|trim}) %}
     {{ parent() }}
 {% endblock %}
 
 {% block form_widget_simple %}
-    {% set attr = attr|merge({class: (attr.class|default('') ~ ' block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500')|trim}) %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' input')|trim}) %}
     {{ parent() }}
 {% endblock %}
 
 {% block textarea_widget %}
-    {% set attr = attr|merge({class: (attr.class|default('') ~ ' block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500')|trim}) %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' input min-h-24')|trim}) %}
     {{ parent() }}
 {% endblock %}
 
 {% block choice_widget_collapsed %}
-    {% set attr = attr|merge({class: (attr.class|default('') ~ ' block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500')|trim}) %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' input')|trim}) %}
     {{ parent() }}
 {% endblock %}
 
 {% block choice_widget_expanded %}
-    <div {{ block('widget_container_attributes') }} class="flex flex-wrap gap-4">
+    <div {{ block('widget_container_attributes') }} class="flex flex-wrap gap-x-5 gap-y-2">
         {% for child in form %}
-            <label class="inline-flex items-center gap-2 text-sm text-slate-700">{{ form_widget(child) }} {{ child.vars.label }}</label>
+            <label class="inline-flex items-center gap-2 text-sm text-fg">{{ form_widget(child) }} {{ child.vars.label|trans({}, child.vars.translation_domain) }}</label>
         {% endfor %}
     </div>
 {% endblock %}
 
 {% block checkbox_widget %}
-    {% set attr = attr|merge({class: (attr.class|default('') ~ ' h-4 w-4 rounded border-slate-300 text-blue-600')|trim}) %}
+    {% set attr = attr|merge({class: (attr.class|default('') ~ ' h-4 w-4 rounded border-line accent-[var(--sl-accent)]')|trim}) %}
     {{ parent() }}
 {% endblock %}
 
 {% block form_errors %}
     {% if errors|length > 0 %}
-        <ul class="mt-1 text-sm text-red-700">
+        <ul class="mt-1 text-sm text-red-600 dark:text-red-400">
             {% for error in errors %}<li>{{ error.message }}</li>{% endfor %}
         </ul>
     {% endif %}
 {% endblock %}
 
 {% block form_help %}
-    {% if help is not empty %}<p class="text-xs text-slate-500">{{ help }}</p>{% endif %}
+    {% if help is not empty %}<p class="text-xs text-muted">{{ help|trans({}, translation_domain) }}</p>{% endif %}
 {% endblock %}

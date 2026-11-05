@@ -15,6 +15,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[IsGranted('ROLE_ADMIN')]
 #[Route('/admin/users')]
@@ -23,6 +24,7 @@ final class UserController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $hasher,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -51,11 +53,11 @@ final class UserController extends AbstractController
             throw $this->createAccessDeniedException('Ungültiges CSRF-Token.');
         }
         if ($user === $me) {
-            $this->addFlash('error', 'Du kannst dich nicht selbst löschen.');
+            $this->addFlash('error', $this->translator->trans('flash.self_delete'));
         } else {
             $this->em->remove($user);
             $this->em->flush();
-            $this->addFlash('success', 'Person gelöscht.');
+            $this->addFlash('success', $this->translator->trans('flash.user_deleted'));
         }
 
         return $this->redirectToRoute('app_admin_user_index');
@@ -73,7 +75,7 @@ final class UserController extends AbstractController
             }
             $this->em->persist($user);
             $this->em->flush();
-            $this->addFlash('success', $isNew ? 'Person angelegt.' : 'Änderungen gespeichert.');
+            $this->addFlash('success', $this->translator->trans($isNew ? 'flash.user_created' : 'flash.saved'));
 
             return $this->redirectToRoute('app_admin_user_index');
         }

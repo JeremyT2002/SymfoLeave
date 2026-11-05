@@ -1,31 +1,48 @@
 {% extends 'base.html.twig' %}
-{% block title %}Mitarbeitende{% endblock %}
+{% import '_partials/icons.html.twig' as icons %}
+{% block title %}{{ 'admin.users_title'|trans }}{% endblock %}
+{% macro roles(user) %}
+    {% set roleKeys = {ROLE_ADMIN: 'role.admin', ROLE_TEAM_LEAD: 'role.team_lead'} %}
+    {% for role in user.storedRoles %}<span class="badge-neutral mr-1">{{ roleKeys[role] is defined ? roleKeys[role]|trans : role }}</span>{% else %}<span class="text-muted">{{ 'role.employee'|trans }}</span>{% endfor %}
+{% endmacro %}
 {% block body %}
-<div class="flex flex-wrap items-center justify-between gap-3">
-    <h1 class="text-2xl font-semibold text-slate-900">Mitarbeitende</h1>
-    <a href="{{ path('app_admin_user_new') }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">+ Person anlegen</a>
+<div class="flex flex-wrap items-end justify-between gap-4">
+    <h1 class="text-2xl font-semibold tracking-tight text-fg sm:text-3xl">{{ 'admin.users_title'|trans }}</h1>
+    <a href="{{ path('app_admin_user_new') }}" class="btn-primary">{{ icons.icon('plus', 'h-4 w-4') }}{{ 'admin.new_user'|trans }}</a>
 </div>
-<div class="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-    <table class="min-w-full text-sm">
-        <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-600">
-            <tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">E-Mail</th><th class="px-4 py-3">Team</th><th class="px-4 py-3">Rollen</th><th class="px-4 py-3 text-right">Urlaub/Jahr</th><th class="px-4 py-3"><span class="sr-only">Aktionen</span></th></tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100">
-            {% for user in users %}
-                <tr>
-                    <td class="px-4 py-3 font-medium">{{ user.name }}</td>
-                    <td class="px-4 py-3 text-slate-600">{{ user.email }}</td>
-                    <td class="px-4 py-3">{{ user.team ?? '–' }}</td>
-                    <td class="px-4 py-3">
-                        {% for role in user.storedRoles %}<span class="mr-1 rounded bg-slate-100 px-1.5 py-0.5 text-xs">{{ {ROLE_ADMIN: 'Admin', ROLE_TEAM_LEAD: 'Teamleitung'}[role] ?? role }}</span>{% else %}<span class="text-slate-500">Mitarbeiter:in</span>{% endfor %}
-                    </td>
-                    <td class="px-4 py-3 text-right tabular-nums">{{ user.annualVacationDays }}</td>
-                    <td class="px-4 py-3 text-right whitespace-nowrap">
-                        <a href="{{ path('app_admin_user_edit', {id: user.id}) }}" class="text-blue-700 hover:underline">Bearbeiten</a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<section class="card mt-6 overflow-hidden">
+    <ul class="divide-y divide-line md:hidden">
+        {% for user in users %}
+            <li>
+                <a href="{{ path('app_admin_user_edit', {id: user.id}) }}" class="flex items-center justify-between gap-3 px-4 py-3.5 hover:bg-surface-2/50">
+                    <span class="min-w-0">
+                        <span class="block truncate font-medium text-fg">{{ user.name }}</span>
+                        <span class="block truncate text-xs text-muted">{{ user.email }} · {{ user.team ?? '–' }}</span>
+                        <span class="mt-1.5 block text-xs">{{ _self.roles(user) }}</span>
+                    </span>
+                    <span class="shrink-0 text-right text-xs text-muted"><strong class="block text-base tabular-nums text-fg">{{ user.annualVacationDays }}</strong>{{ 'admin.vacation'|trans }}</span>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="hidden overflow-x-auto md:block">
+        <table class="min-w-full text-sm">
+            <thead class="bg-surface-2 text-left text-xs font-semibold uppercase tracking-wide text-muted">
+                <tr><th class="px-5 py-3">{{ 'admin.name'|trans }}</th><th class="px-5 py-3">{{ 'admin.email'|trans }}</th><th class="px-5 py-3">{{ 'admin.team'|trans }}</th><th class="px-5 py-3">{{ 'admin.roles'|trans }}</th><th class="px-5 py-3 text-right">{{ 'admin.vacation'|trans }}</th><th class="px-5 py-3"><span class="sr-only">{{ 'absence.actions'|trans }}</span></th></tr>
+            </thead>
+            <tbody class="divide-y divide-line">
+                {% for user in users %}
+                    <tr class="hover:bg-surface-2/50">
+                        <td class="px-5 py-3.5 font-medium text-fg">{{ user.name }}</td>
+                        <td class="px-5 py-3.5 text-muted">{{ user.email }}</td>
+                        <td class="px-5 py-3.5 text-fg">{{ user.team ?? '–' }}</td>
+                        <td class="px-5 py-3.5">{{ _self.roles(user) }}</td>
+                        <td class="px-5 py-3.5 text-right tabular-nums text-fg">{{ user.annualVacationDays }}</td>
+                        <td class="whitespace-nowrap px-5 py-3.5 text-right"><a href="{{ path('app_admin_user_edit', {id: user.id}) }}" class="btn-ghost btn-sm">{{ icons.icon('pencil', 'h-4 w-4') }}{{ 'admin.edit'|trans }}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
 {% endblock %}

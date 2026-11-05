@@ -19,6 +19,8 @@ abstract class AppWebTestCase extends WebTestCase
     protected function setUp(): void
     {
         $this->client = static::createClient();
+        // Request::create() schickt sonst "Accept-Language: en-us" – die Tests prüfen deutsche Texte
+        $this->client->setServerParameter('HTTP_ACCEPT_LANGUAGE', 'de-DE,de;q=0.9');
         $container = static::getContainer();
         $this->em = $container->get(EntityManagerInterface::class);
 

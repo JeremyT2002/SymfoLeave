@@ -32,3 +32,12 @@
 - **SSL per certbot** für `symfoleave.jeremythelen.de`, nachdem der DNS-Eintrag angelegt war; HTTP leitet auf HTTPS um.
 - **Migration ohne Transaktion** – MySQL beendet Transaktionen bei DDL implizit, der Demo-Reset brach sonst mit „SAVEPOINT does not exist“ ab.
 - **Umstellungsskript nutzt `auth_socket`** – root meldet sich ohne Passwort an, falls möglich; `.env.local` wird erst geändert, wenn der neue MySQL-Benutzer sich nachweislich anmelden kann.
+
+## Frontend-Überarbeitung (05.11.2026)
+
+- **Sprache ohne URL-Präfix**: Cookie `locale` → `Accept-Language` → `de`. Kurze URLs bleiben stabil, Umschalten per `/locale/{de|en|fr}` mit Rücksprung nur auf interne Pfade (kein Open Redirect).
+- **Arten in der DB bleiben deutsch** und werden über die Übersetzungsdomain `absence_types` angezeigt – keine Datenmigration nötig, neue Arten fallen auf ihren DB-Namen zurück.
+- **Keine ICU-Plurale** für Arbeitstage: halbe Tage (0,5) passen in keine Plural-Kategorie sauber, daher zwei Schlüssel (1 Tag / n Tage).
+- **Theming über CSS-Variablen** (`--sl-*`) und Tailwind-`@theme`-Tokens; `.dark` auf `<html>`, per Inline-Skript vor dem ersten Paint gesetzt (kein Aufblitzen).
+- **Komponenten in `@layer components`** statt `@utility`, damit Utilities wie `hidden` sie zuverlässig überschreiben.
+

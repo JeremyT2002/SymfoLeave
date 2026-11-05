@@ -15,6 +15,8 @@ Schlanke Abwesenheitsverwaltung mit Symfony: Mitarbeitende tragen Urlaub, Krankh
 - **Dashboard**: eigenes Urlaubskonto, nächste Abwesenheiten, offene Anträge des Teams (mit Genehmigen/Ablehnen), wer heute fehlt.
 - **Admin**: Mitarbeitende, Rollen, Teams, Teamleitungen und Urlaubsanspruch pflegen.
 - **Datenschutz**: Bei nicht sichtbaren Arten (z. B. Krankheit) sehen Kolleg:innen nur „abwesend“ – ohne Art und Kommentar.
+- **Dreisprachig (DE/EN/FR)**: Sprache aus Cookie (Umschalter) oder Browser, Standard Deutsch; Datumsformate, Feiertagsnamen und Validierungsmeldungen lokalisiert.
+- **Hell-/Dunkelmodus** (folgt dem System, manuell umschaltbar) und responsives Layout: Seitenleiste am Desktop, Tab-Leiste mit „+“-Button am Handy, Tabellen werden am Handy zu Karten.
 - **Demo-Modus** (`APP_DEMO=1`): Ein-Klick-Logins, fiktive Firma mit 11 Personen in 2 Teams, Daten relativ zum heutigen Datum, nächtlicher Reset.
 
 ## Tech-Stack

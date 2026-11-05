@@ -1,0 +1,7 @@
+absence.type_required: 'Veuillez choisir un type.'
+absence.start_required: 'Veuillez indiquer une date de début.'
+absence.end_required: 'Veuillez indiquer une date de fin.'
+absence.end_before_start: 'La fin ne peut pas précéder le début.'
+absence.overlap: 'Une absence active existe déjà sur cette période.'
+absence.single_day_half: 'Pour une seule journée, veuillez ne choisir qu’une demi-journée.'
+user.email_taken: 'Cette adresse e-mail est déjà utilisée.'
