@@ -1,0 +1,20 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    default_locale: de
+    session:
+        cookie_secure: auto
+        cookie_samesite: lax
+    # Behind a reverse proxy / load balancer: set TRUSTED_PROXIES in .env.local
+    trusted_proxies: '%env(TRUSTED_PROXIES)%'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']
+
+when@prod:
+    framework:
+        session:
+            cookie_secure: true
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file

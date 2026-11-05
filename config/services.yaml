@@ -1,0 +1,18 @@
+parameters:
+    app.demo: '%env(bool:APP_DEMO)%'
+    app.holiday_region: '%env(HOLIDAY_REGION)%'
+    env(APP_DEMO): '0'
+    # Yasumi provider, e.g. Germany/Bavaria, Germany/BadenWurttemberg
+    env(HOLIDAY_REGION): 'Germany/NorthRhineWestphalia'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+
+    # SQLite: enforce foreign keys (ON DELETE CASCADE / SET NULL)
+    Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\EnableForeignKeys:
+        tags: ['doctrine.middleware']
