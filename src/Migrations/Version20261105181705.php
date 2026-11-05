@@ -18,6 +18,12 @@ final class Version20261105181705 extends AbstractMigration
         return '';
     }
 
+    /** MySQL beendet Transaktionen bei DDL implizit – daher ohne Transaktion ausführen */
+    public function isTransactional(): bool
+    {
+        return false;
+    }
+
     public function up(Schema $schema): void
     {
         // Live läuft MySQL (wie SymfoShop auf demselben Server), lokal und in Tests SQLite

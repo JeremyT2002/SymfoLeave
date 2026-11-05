@@ -30,3 +30,5 @@
 - **Fremdschlüssel-PRAGMA nur bei SQLite** – eigene Middleware statt der DBAL-Middleware, die das PRAGMA auch an MySQL schicken würde.
 - **Datenbank anlegen per `deploy/switch-to-mysql.sh`** – braucht das MySQL-Root-Passwort, das nur Jeremy hat; das Zufallspasswort des App-Benutzers landet nur in `.env.local`.
 - **SSL per certbot** für `symfoleave.jeremythelen.de`, nachdem der DNS-Eintrag angelegt war; HTTP leitet auf HTTPS um.
+- **Migration ohne Transaktion** – MySQL beendet Transaktionen bei DDL implizit, der Demo-Reset brach sonst mit „SAVEPOINT does not exist“ ab.
+- **Umstellungsskript nutzt `auth_socket`** – root meldet sich ohne Passwort an, falls möglich; `.env.local` wird erst geändert, wenn der neue MySQL-Benutzer sich nachweislich anmelden kann.

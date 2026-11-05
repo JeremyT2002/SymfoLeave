@@ -16,7 +16,9 @@ DB_PASS="$(openssl rand -hex 24)"
 SERVER_VERSION="$(mysqld --version | grep -oP '\d+\.\d+\.\d+' | head -1)"
 
 # Root-Passwort aus MYSQL_ROOT_PASSWORD (nicht interaktiv) oder per Abfrage
-if [[ -n "${MYSQL_ROOT_PASSWORD:-}" ]]; then
+if mysql -u root -e 'SELECT 1' >/dev/null 2>&1; then
+    root_mysql() { mysql -u root; }   # root per auth_socket (Ubuntu-Standard), kein Passwort nötig
+elif [[ -n "${MYSQL_ROOT_PASSWORD:-}" ]]; then
     root_mysql() { MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -u root; }
 else
     echo "Lege Datenbank '$DB_NAME' und Benutzer '$DB_USER' an – bitte das MySQL-Root-Passwort eingeben:"
@@ -32,6 +34,8 @@ GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USER'@'localhost';
 GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USER'@'127.0.0.1';
 FLUSH PRIVILEGES;
 SQL
+# Ab hier nur weiter, wenn der neue Benutzer sich wirklich anmelden kann
+MYSQL_PWD="$DB_PASS" mysql -u "$DB_USER" -h127.0.0.1 -e "USE \`$DB_NAME\`" || { echo "MySQL-Benutzer funktioniert nicht – .env.local bleibt unverändert."; exit 1; }
 
 # DATABASE_URL ersetzen (bisherige SQLite-Zeile bleibt als Kommentar erhalten)
 cp -a .env.local ".env.local.bak-$(date +%Y%m%d-%H%M%S)"
