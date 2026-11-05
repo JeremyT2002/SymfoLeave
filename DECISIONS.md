@@ -17,3 +17,12 @@
 - **Demo-Passwort `demo` für alle Demo-Personen** – zusätzlich zum Ein-Klick-Login nutzbar, fiktive Daten.
 - **SQLite-Fremdschlüssel per DBAL-Middleware aktiviert** – sonst greifen `ON DELETE CASCADE/SET NULL` nicht.
 - **`TRUSTED_PROXIES` über Umgebungsvariable** – leer bei direktem nginx/Apache + PHP-FPM, setzbar hinter einem Proxy.
+
+## Live-Betrieb (VPS, 05.11.2026)
+- **PHP 8.3 statt 8.4** – auf dem Server ist nur 8.3 installiert; Symfony 7.4 läuft damit, die Plattform-Version bleibt 8.2.
+- **Apache + mod_php statt PHP-FPM** – so laufen alle bestehenden vHosts auf diesem Server; Vorlage `deploy/apache-mod_php.conf` (FPM-Variante bleibt in `deploy/apache.conf`).
+- **Eigene vHost-Datei** `/etc/apache2/sites-available/symfoleave.jeremythelen.de.conf` mit `open_basedir` wie bei den Nachbarprojekten; bestehende vHosts unverändert.
+- **Nur HTTP, noch kein SSL** – für `symfoleave.jeremythelen.de` gibt es noch keinen DNS-Eintrag (zuständig: Namecheap), certbot kann ohne DNS nicht prüfen.
+- **Rechte über Gruppe `www-data`** – Projekt `root:www-data` lesbar, `var/` `2770` für den Web-User statt 777.
+- **Demo-Reset per Crontab von `www-data`** täglich 3:30 Uhr.
+- **Demo-Logins per curl geprüft** – Session-Cookie ist in `prod` `secure`, daher bis SSL im Browser erst über HTTPS nutzbar.
