@@ -1,0 +1,27 @@
+framework:
+    workflows:
+        absence:
+            type: state_machine
+            audit_trail:
+                enabled: true
+            marking_store:
+                type: method
+                property: status
+            supports:
+                - App\Entity\Absence
+            initial_marking: requested
+            places:
+                - requested
+                - approved
+                - rejected
+                - cancelled
+            transitions:
+                approve:
+                    from: requested
+                    to: approved
+                reject:
+                    from: requested
+                    to: rejected
+                cancel:
+                    from: [requested, approved]
+                    to: cancelled
